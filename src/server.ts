@@ -1,8 +1,10 @@
+import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { Express } from 'express';
 import helmet from 'helmet';
 import { pino } from 'pino';
 
+import { authRouter } from '@/api/auth/authRouter';
 import { healthCheckRouter } from '@/api/healthCheck/healthCheckRouter';
 import { userRouter } from '@/api/user/userRouter';
 import { openAPIRouter } from '@/api-docs/openAPIRouter';
@@ -21,6 +23,7 @@ app.set('trust proxy', true);
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 app.use(helmet());
 app.use(rateLimiter);
+app.use(bodyParser.json());
 
 // Request logging
 app.use(requestLogger());
@@ -28,6 +31,7 @@ app.use(requestLogger());
 // Routes
 app.use('/health-check', healthCheckRouter);
 app.use('/users', userRouter);
+app.use('/auth', authRouter);
 
 // Swagger UI
 app.use(openAPIRouter);
