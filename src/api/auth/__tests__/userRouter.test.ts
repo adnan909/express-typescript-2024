@@ -25,7 +25,7 @@ describe('User API Endpoints', () => {
   describe('GET /users/:id', () => {
     it('should return a user for a valid ID', async () => {
       // Arrange
-      const testId = 1;
+      const testId = '1';
       const expectedUser = users.find((user) => user.id === testId) as User;
 
       // Act
@@ -78,7 +78,7 @@ function compareUsers(mockUser: User, responseUser: User) {
   expect(responseUser.id).toEqual(mockUser.id);
   expect(responseUser.name).toEqual(mockUser.name);
   expect(responseUser.email).toEqual(mockUser.email);
-  expect(responseUser.age).toEqual(mockUser.age);
+  expect(responseUser.avatar).toEqual(mockUser.avatar);
   expect(new Date(responseUser.createdAt)).toEqual(mockUser.createdAt);
   expect(new Date(responseUser.updatedAt)).toEqual(mockUser.updatedAt);
 }
