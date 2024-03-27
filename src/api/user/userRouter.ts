@@ -2,10 +2,11 @@ import { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
 import express, { Request, Response, Router } from 'express';
 import { z } from 'zod';
 
-import { GetUserSchema, UserSchema } from '@/api/user/userModel';
+import { GetUserSchema, PatchUserSchema, PostUserSchema, UserSchema } from '@/api/user/userModel';
 import { userService } from '@/api/user/userService';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
+import { upload } from '@/common/utils/upload';
 
 export const userRegistry = new OpenAPIRegistry();
 
@@ -35,8 +36,62 @@ export const userRouter: Router = (() => {
   });
 
   router.get('/:id', validateRequest(GetUserSchema), async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id as string, 10);
+    const id = req.params.id;
     const serviceResponse = await userService.findById(id);
+    handleServiceResponse(serviceResponse, res);
+  });
+
+  // register
+  userRegistry.registerPath({
+    method: 'post',
+    path: '/users',
+    tags: ['User'],
+    request: {
+      body: {
+        description: 'register with email and password',
+        content: {
+          'application/json': {
+            schema: PostUserSchema.shape.body,
+            example: {
+              email: 'some@email.com',
+              password: 'somepassword',
+            },
+          },
+        },
+        required: true,
+      },
+    },
+    responses: createApiResponse(UserSchema, 'Success'),
+  });
+
+  router.post('/', validateRequest(PostUserSchema), async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    const serviceResponse = await userService.createUser(email, password);
+    handleServiceResponse(serviceResponse, res);
+  });
+  // update profile
+  userRegistry.registerPath({
+    method: 'patch',
+    path: '/users',
+    tags: ['User'],
+    request: {
+      body: {
+        description: 'login with email and password',
+        content: {
+          'multipart/form-data': {
+            schema: PatchUserSchema.shape.body,
+          },
+        },
+        required: true,
+      },
+    },
+    responses: createApiResponse(UserSchema, 'Success'),
+  });
+
+  router.patch('/', upload.single('avatar'), validateRequest(PatchUserSchema), async (req: Request, res: Response) => {
+    const { name } = req.body;
+    const avatar = req.file?.path as string;
+    const serviceResponse = await userService.updateUser(name, avatar);
     handleServiceResponse(serviceResponse, res);
   });
 
