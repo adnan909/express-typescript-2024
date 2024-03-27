@@ -54,15 +54,13 @@ export const userService = {
 
   // updates a user
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  updateUser: async (name: string, _avatar: Buffer): Promise<ServiceResponse<User | null>> => {
+  updateUser: async (name: string, avatar: string): Promise<ServiceResponse<User | null>> => {
     try {
-      const user = await userRepository.findByIdAsync('some-user-id'); // req.userId
+      const user = await userRepository.findByIdAsync('1');
       if (!user) {
         return new ServiceResponse(ResponseStatus.Failed, 'User not found', null, StatusCodes.NOT_FOUND);
       }
-      // File save, upload to cloud// generate a link
-      const avatarLink = 'https://placehold.co/32';
-      const updatedUser = await userRepository.update(user.id, name, avatarLink);
+      const updatedUser = await userRepository.update(user.id, name, avatar);
       return new ServiceResponse<User>(ResponseStatus.Success, 'User updated', updatedUser, StatusCodes.OK);
     } catch (ex) {
       const errorMessage = `Error finding user :, ${(ex as Error).message}`;

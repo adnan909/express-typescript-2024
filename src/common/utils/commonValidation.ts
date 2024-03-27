@@ -8,12 +8,13 @@ export const commonValidations = {
     .refine((num) => num > 0, 'ID must be a positive number'),
   email: z.string({ required_error: 'Email is required' }),
   password: z.string({ required_error: 'Password is required' }),
-  name: z.string({ required_error: 'Name is required' }),
+  name: z.string({ required_error: 'Name is required' }).min(3, 'Name must containe atleast 3 letters'),
   avatar: z.object({
+    fieldname: z.string(),
     originalname: z.string(),
-    mimetype: z.string(),
-    size: z.number(),
-    buffer: z.instanceof(Buffer),
+    encoding: z.string(),
+    mimetype: z.string().regex(/^image\/(png|jpeg|gif)$/),
+    size: z.number().min(0),
   }),
   // ... other common validations
 };

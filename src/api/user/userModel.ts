@@ -28,5 +28,6 @@ export const PostUserSchema = z.object({
 
 // Input Validation for 'POST users/' endpoint
 export const PatchUserSchema = z.object({
-  body: z.object({ name: commonValidations.email, avatar: commonValidations.avatar }),
+  body: z.object({ name: commonValidations.name }),
+  file: commonValidations.avatar,
 });

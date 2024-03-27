@@ -6,6 +6,7 @@ import { GetUserSchema, PatchUserSchema, PostUserSchema, UserSchema } from '@/ap
 import { userService } from '@/api/user/userService';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
+import { upload } from '@/common/utils/upload';
 
 export const userRegistry = new OpenAPIRegistry();
 
@@ -77,12 +78,8 @@ export const userRouter: Router = (() => {
       body: {
         description: 'login with email and password',
         content: {
-          'application/json': {
+          'multipart/form-data': {
             schema: PatchUserSchema.shape.body,
-            // example: {
-            //   name: 'some-name',
-            //   // avatar: '',
-            // },
           },
         },
         required: true,
@@ -91,8 +88,9 @@ export const userRouter: Router = (() => {
     responses: createApiResponse(UserSchema, 'Success'),
   });
 
-  router.patch('/', validateRequest(PatchUserSchema), async (req: Request, res: Response) => {
-    const { name, avatar } = req.body;
+  router.patch('/', upload.single('avatar'), validateRequest(PatchUserSchema), async (req: Request, res: Response) => {
+    const { name } = req.body;
+    const avatar = req.file?.path as string;
     const serviceResponse = await userService.updateUser(name, avatar);
     handleServiceResponse(serviceResponse, res);
   });
